@@ -57,6 +57,7 @@ DYNAMIC_LOGGER_METHODS
         _disconnecting = NO;
         _bluetoothOn = bluetoothOn;
         _connectionTimerExecutor = [[WLXManagedDelayedExecutor alloc] initWithQueue:queue];
+        _allowReconnection = YES;
         [self registerNotificationHandlers];
     }
     return self;
@@ -133,7 +134,7 @@ DYNAMIC_LOGGER_METHODS
         NSAssert(error == nil, @"Cannot be an error if disconnecting is YES");
         self.disconnecting = NO;
         if (self.reconnecting) {
-            WLXLogDebug(@"Reconnection attemp has been terminated.");
+            WLXLogDebug(@"Reconnection attempt has been terminated.");
         } else {
             WLXLogInfo(@"Connection with device '%@' has been terminated.", self.peripheral.name);
             NSDictionary * userInfo = @{ WLXBluetoothDevicePeripheral : self.peripheral };
@@ -163,25 +164,39 @@ DYNAMIC_LOGGER_METHODS
         notificationName = WLXBluetoothDeviceConnectionEstablished;
     }
     [self.reconnectionStrategy reset];
+    
+    // A local variable is used to be able
+    // to decide which method to invoke
+    // on the delegate a the end of this
+    // method.
+    //
+    // The reconnecting property is not used
+    // because we want to make sure that when
+    // the delegate's method is invoked the
+    // properties have the expected value.
+    BOOL reconnecting = _reconnecting;
+    
     _connected = YES;
+    _connecting = NO;
+    _reconnecting = NO;
 
-    // We don't want to create a service manager every time a connection is made
-    // because all the cached data will be lost if we do so. Using the same instance every time
-    // is not a problem because an instance of connection manager always handles the same
-    // peripheral therefor the service manager is guaranted to manage the same peripheral.
-    if (_servicesManager == nil) {
-        _servicesManager = [[WLXServicesManager alloc] initWithPeripheral:self.peripheral
-                                                       notificationCenter:self.notificationCenter];
-    }
+    // After a reconnection services and characteristic must be re-discovered
+    // because CBService and CBCharacteristic can only be used while the
+    // connection is alive.
+    _servicesManager = [[WLXServicesManager alloc] initWithPeripheral:self.peripheral
+                                                   notificationCenter:self.notificationCenter];
     if (self.connectionBlock) {
         self.connectionBlock(nil);
         self.connectionBlock = nil;
     }
-    NSDictionary * userInfo = @{ WLXBluetoothDevicePeripheral : self.peripheral };
+    NSDictionary * userInfo = @{
+        WLXBluetoothDevicePeripheral : self.peripheral,
+        WLXBluetoothDeviceServicesManager : self.servicesManager
+    };
     [self.notificationCenter postNotificationName:notificationName object:self userInfo:userInfo];
-    if (self.reconnecting && [self.delegate respondsToSelector:@selector(connecitonManagerDidReconnect:)]) {
+    if (reconnecting && [self.delegate respondsToSelector:@selector(connecitonManagerDidReconnect:)]) {
         [self.delegate connecitonManagerDidReconnect:self];
-    } else if (!self.reconnecting) {
+    } else if (!reconnecting) {
         [self.delegate connectionManagerDidConnect:self];
     }
 
@@ -263,9 +278,12 @@ DYNAMIC_LOGGER_METHODS
 }
 
 - (void)tryToReconnect:(NSError *)error {
+    if (!self.allowReconnection) {
+        WLXLogDebug(@"Reconnection is not allowed");
+    }
     _reconnecting = YES;
     __weak typeof(self) wself = self;
-    BOOL willTryToReconnect = [self.reconnectionStrategy tryToReconnectUsingConnectionBlock:^{
+    BOOL willTryToReconnect = self.allowReconnection && [self.reconnectionStrategy tryToReconnectUsingConnectionBlock:^{
         __strong typeof(self) this = wself;
         [this connectWithTimeout:this.reconnectionStrategy.connectionTimeout usingBlock:nil];
     }];

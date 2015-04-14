@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "WLXBluetoothDevice"
-  s.version          = "0.1.0-beta2"
+  s.version          = "0.2.0-alpha4"
   s.summary          = "A block-based wrapper of CoreBluetooth"
   s.description      = <<-DESC
                        WLXBluetoothDevice provides a better, more modular
@@ -28,12 +28,20 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source_files = 'Pod/Classes'
-  s.resource_bundles = {
-    'WLXBluetoothDevice' => ['Pod/Assets/*.png']
-  }
+  s.subspec 'Core' do |cs|
+    cs.source_files = 'Pod/Classes/Core'
+    cs.resource_bundles = {
+      'WLXBluetoothDevice' => ['Pod/Assets/*.png']
+    }
 
-  s.frameworks = 'CoreBluetooth'
-  s.dependency 'CocoaLumberjack', '~>2.0.0-rc'
+    cs.frameworks = 'CoreBluetooth'
+    cs.dependency 'CocoaLumberjack', '~>2.0.0-rc'
+  end
+
+  s.subspec 'ReactiveCocoa' do |cs|
+    cs.source_files = 'Pod/Classes/ReactiveCocoa'
+    cs.dependency 'WLXBluetoothDevice/Core'
+    cs.dependency 'ReactiveCocoa', '2.4.4'
+  end
 
 end

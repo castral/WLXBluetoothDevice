@@ -1,25 +1,38 @@
 PODS:
-  - CocoaLumberjack (2.0.0-rc):
-    - CocoaLumberjack/Default (= 2.0.0-rc)
-    - CocoaLumberjack/Extensions (= 2.0.0-rc)
-  - CocoaLumberjack/Core (2.0.0-rc)
-  - CocoaLumberjack/Default (2.0.0-rc):
+  - CocoaLumberjack (2.0.0):
+    - CocoaLumberjack/Default (= 2.0.0)
+    - CocoaLumberjack/Extensions (= 2.0.0)
+  - CocoaLumberjack/Core (2.0.0)
+  - CocoaLumberjack/Default (2.0.0):
     - CocoaLumberjack/Core
-  - CocoaLumberjack/Extensions (2.0.0-rc):
+  - CocoaLumberjack/Extensions (2.0.0):
     - CocoaLumberjack/Default
-  - Expecta (0.3.1)
+  - Expecta (0.3.2)
   - OCHamcrest (4.1.1)
   - OCMockito (1.4.0):
     - OCHamcrest (~> 4.0)
-  - Specta (0.2.1)
-  - WLXBluetoothDevice (0.1.0-beta2):
+  - ReactiveCocoa (2.4.4):
+    - ReactiveCocoa/UI (= 2.4.4)
+  - ReactiveCocoa/Core (2.4.4):
+    - ReactiveCocoa/no-arc
+  - ReactiveCocoa/no-arc (2.4.4)
+  - ReactiveCocoa/UI (2.4.4):
+    - ReactiveCocoa/Core
+  - Specta (0.3.2)
+  - WLXBluetoothDevice (0.2.0-alpha4):
+    - WLXBluetoothDevice/Core (= 0.2.0-alpha4)
+    - WLXBluetoothDevice/ReactiveCocoa (= 0.2.0-alpha4)
+  - WLXBluetoothDevice/Core (0.2.0-alpha4):
     - CocoaLumberjack (~> 2.0.0-rc)
+  - WLXBluetoothDevice/ReactiveCocoa (0.2.0-alpha4):
+    - ReactiveCocoa (= 2.4.4)
+    - WLXBluetoothDevice/Core
 
 DEPENDENCIES:
   - CocoaLumberjack (~> 2.0.0-rc)
   - Expecta
   - OCMockito (~> 1.0)
-  - Specta (~> 0.2.1)
+  - Specta (~> 0.3.2)
   - WLXBluetoothDevice (from `../`)
 
 EXTERNAL SOURCES:
@@ -27,11 +40,12 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  CocoaLumberjack: 6186e27827fc574b50b16c10102fcc591437f06c
-  Expecta: 03aabd0a89d8dea843baecb19a7fd7466a69a31d
-  OCHamcrest: af1c7c5ea345de69ea6c9c2958f65f3044e5c420
-  OCMockito: 991936bb775cc4c27f063d38f5e17b9161fbd21c
-  Specta: 9141310f46b1f68b676650ff2854e1ed0b74163a
-  WLXBluetoothDevice: b8715f0e074bcc3e5b88073d06c5f592d8d2ea21
+  CocoaLumberjack: a6f77d987d65dc7ba86b0f84db7d0b9084f77bcb
+  Expecta: 8c507baf13211207b1e9d0a741480600e6b4ed15
+  OCHamcrest: 6f03ffa81d12feab872638490a44ab0a6d3aca10
+  OCMockito: 4981140c9a9ec06c31af40f636e3c0f25f27e6b2
+  ReactiveCocoa: cbe3b5eae464aa72a348a7323996b171728a9e71
+  Specta: e5ad38f1b2227a23bc63d0b5a3b41c5e628f2851
+  WLXBluetoothDevice: 1294c0bad70f49fdef0a24257c0384421d962bdb
 
-COCOAPODS: 0.35.0
+COCOAPODS: 0.36.0

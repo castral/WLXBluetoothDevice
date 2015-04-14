@@ -35,6 +35,54 @@ SpecBegin(WLXServicesManager)
         notificationCenter = nil;
     });
 
+    describe(@"#invalidated", ^{
+    
+        context(@"when the service manager has just been created", ^{
+        
+            it(@"is not invalidated", ^{
+                expect(servicesManager.invalidated).to.beFalsy;
+            });
+        
+        });
+    
+        context(@"when a WLXBluetoothDeviceReconnecting notification is triggered", ^{
+        
+            beforeEach(^{
+                [notificationCenter postNotificationName:WLXBluetoothDeviceReconnecting object:nil];
+            });
+        
+            it(@"is invalidated", ^{
+                expect(servicesManager.invalidated).to.beTruthy;
+            });
+        
+        });
+    
+        context(@"when a WLXBluetoothDeviceConnectionLost notification is triggered", ^{
+        
+            beforeEach(^{
+                [notificationCenter postNotificationName:WLXBluetoothDeviceConnectionLost object:nil];
+            });
+        
+            it(@"is invalidated", ^{
+                expect(servicesManager.invalidated).to.beTruthy;
+            });
+        
+        });
+    
+        context(@"when a WLXBluetoothDeviceConnectionTerminated notification is triggered", ^{
+        
+            beforeEach(^{
+                [notificationCenter postNotificationName:WLXBluetoothDeviceConnectionTerminated object:nil];
+            });
+        
+            it(@"is invalidated", ^{
+                expect(servicesManager.invalidated).to.beTruthy;
+            });
+        
+        });
+    
+    });
+
     describe(@"#discoverServicesUsingBlock:", ^{
         
         context(@"when the services where successfully discovered", ^{
@@ -43,29 +91,29 @@ SpecBegin(WLXServicesManager)
                 [MKTGiven(mockPeripheral.services) willReturn:@[mockService]];
             });
             
-            it(@"calls the block", ^AsyncBlock{
+            it(@"calls the block", ^{ waitUntil(^(DoneCallback done) {
                 [servicesManager discoverServicesUsingBlock:^(NSError * error) {
                     expect(error).to.beNil;
                     done();
                 }];
                 [servicesManager peripheral:mockPeripheral didDiscoverServices:nil];
-            });
+            });});
             
-            it(@"calls the peripheral's discoverServices: method", ^AsyncBlock{
+            it(@"calls the peripheral's discoverServices: method", ^{ waitUntil(^(DoneCallback done) {
                 [servicesManager discoverServicesUsingBlock:^(NSError * error) {
                     [MKTVerify(mockPeripheral) discoverServices:nil];
                     done();
                 }];
                 [servicesManager peripheral:mockPeripheral didDiscoverServices:nil];
-            });
+            });});
             
-            it(@"stores the discovered services", ^AsyncBlock{
+            it(@"stores the discovered services", ^{ waitUntil(^(DoneCallback done) {
                 [servicesManager discoverServicesUsingBlock:^(NSError * error) {
                     expect(servicesManager.services).to.equal(@[mockService]);
                     done();
                 }];
                 [servicesManager peripheral:mockPeripheral didDiscoverServices:nil];
-            });
+            });});
             
             it(@"returns YES", ^{
                 expect([servicesManager discoverServicesUsingBlock:^(NSError * error) {}]).to.beTruthy;
@@ -85,13 +133,13 @@ SpecBegin(WLXServicesManager)
                 error = nil;
             });
             
-            it(@"calls the block with an error", ^AsyncBlock{
+            it(@"calls the block with an error", ^{ waitUntil(^(DoneCallback done) {
                 [servicesManager discoverServicesUsingBlock:^(NSError * error) {
                     expect(error).notTo.beNil;
                     done();
                 }];
                 [servicesManager peripheral:mockPeripheral didDiscoverServices:error];
-            });
+            });});
             
         });
         
@@ -106,7 +154,7 @@ SpecBegin(WLXServicesManager)
                 expect([servicesManager discoverServicesUsingBlock:^(NSError * error) {}]).to.beFalsy;
             });
             
-            it(@"calls the block with an error", ^AsyncBlock{
+            it(@"calls the block with an error", ^{ waitUntil(^(DoneCallback done) {
                 NSError * error = [NSError errorWithDomain:WLXBluetoothDeviceServiceErrorDomain
                                                       code:WLXBluetoothDeviceServiceErrorServicesDiscoveryAlreadyStarted
                                                   userInfo:nil];
@@ -114,14 +162,14 @@ SpecBegin(WLXServicesManager)
                     expect(anError).to.equal(error);
                     done();
                 }];
-            });
+            });});
             
-            it(@"does not call the peripheral's discoverServices: methods", ^AsyncBlock{
+            it(@"does not call the peripheral's discoverServices: methods", ^{ waitUntil(^(DoneCallback done) {
                 [servicesManager discoverServicesUsingBlock:^(NSError * error) {
                     [MKTVerifyCount(mockPeripheral, times(1)) discoverServices:nil];
                     done();
                 }];
-            });
+            });});
             
         });
         
@@ -185,6 +233,20 @@ SpecBegin(WLXServicesManager)
             
         });
         
+        context(@"when the services manager is invalidated", ^{
+           
+            beforeEach(^{
+                [notificationCenter postNotificationName:WLXBluetoothDeviceReconnecting object:nil];
+            });
+            
+            it(@"raises an exception", ^{
+                expect(^{
+                    [servicesManager discoverServicesUsingBlock:^(NSError * error) {}];
+                }).to.raise(NSInternalInconsistencyException);
+            });
+            
+        });
+        
     });
 
     describe(@"#serviceFromUUID:", ^{
@@ -219,6 +281,20 @@ SpecBegin(WLXServicesManager)
             
         });
         
+        context(@"when the services manager is invalidated", ^{
+            
+            beforeEach(^{
+                [notificationCenter postNotificationName:WLXBluetoothDeviceReconnecting object:nil];
+            });
+            
+            it(@"raises an exception", ^{
+                expect(^{
+                    [servicesManager discoverServicesUsingBlock:^(NSError * error) {}];
+                }).to.raise(NSInternalInconsistencyException);
+            });
+            
+        });
+        
     });
 
     describe(@"#managerForService:", ^{
@@ -249,6 +325,20 @@ SpecBegin(WLXServicesManager)
             
             it(@"returns nil", ^{
                 expect([servicesManager managerForService:mockService.UUID]).to.beNil;
+            });
+            
+        });
+        
+        context(@"when the services manager is invalidated", ^{
+            
+            beforeEach(^{
+                [notificationCenter postNotificationName:WLXBluetoothDeviceReconnecting object:nil];
+            });
+            
+            it(@"raises an exception", ^{
+                expect(^{
+                    [servicesManager discoverServicesUsingBlock:^(NSError * error) {}];
+                }).to.raise(NSInternalInconsistencyException);
             });
             
         });
